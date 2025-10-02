@@ -9,9 +9,9 @@ export const getObtenerTodosLosUsuarios = async (req,res,next) => {
     }
 };
 
-export const getObtenerPorEmail = async (req,res,next) => {
+export const getObtenerPorRol = async (req,res,next) => {
     try{
-        const result = await userService.getUserByEmail();
+        const result = await userService.getUserByRol();
         res.json(result);
     }catch(err){
         return next(err);
@@ -26,10 +26,19 @@ export const getBuscarNombre = async (req,res,next) => {
     }
 };
 
+export const getBuscarApellido = async (req,res,next) => {
+    try{
+        const result = await userService.getUserByApellido();
+        res.json(result);
+    }catch(err){
+        return next(err);
+    }
+};
+
 export const postCrearUsuario = async (req,res,next) => {
     try{
-        const{nombre,documento,carnet,email,contrasenia} = req.body;
-        const newUser = await userService.postCrearUsuario(nombre,documento,carnet,email,contrasenia);
+        const{nombreUsuario, clave, nombre, apellido} = req.body;
+        const newUser = await userService.postCrearUsuario(nombreUsuario, clave, nombre, apellido);
         res.status(201).json(newUser);
     }catch(err){
         return next(err);
@@ -46,8 +55,8 @@ export const putActualizarUsuario = async (req,res,next) => {
 
 export const deleteEliminarUsuario = async (req,res,next) => {
     try{
-        const {id_usuario} = req.params;
-        const result = await userService.eliminarUsuario(id_usuario);
+        const {usuarioId} = req.params;
+        const result = await userService.eliminarUsuario(usuarioId);
         res.status(200).json(result);
     }catch(err){
         return next(err);

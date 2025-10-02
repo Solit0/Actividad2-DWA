@@ -23,15 +23,45 @@ export const createUserValidators = [
     .notEmpty()
     .withMessage('El nombre es obligatorio'),
 
-    body('email')
+    body('apellido')
     .trim()
-    .isEmail()
-    .withMessage('El email no es válido'),
+    .notEmpty()
+    .withMessage('El apellido es obligatorio'),
 
-    body('contrasenia')
-    .isLength({min: 6})
-    .withMessage('La contraseña debe tener al menos 6 caracteres')
+    body('nombreUsuario')
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre de usuario es obligatorio')
+    .isLength({ min: 5 }).withMessage('El nombre de usuario debe tener al menos 5 caracteres.'),
+
+    body('clave')
+    .notEmpty()
+    .withMessage('La clave es obligatoria')
+    .isLength({ min: 8 }).withMessage('La clave debe tener al menos 8 caracteres.'),
+
+    body('rolId')
+    .notEmpty()
+    .isInt().withMessage('El ID del rol debe ser un número entero')
+    .withMessage('El ID del rol es obligatorio')
+    .isIn([1,2]).withMessage('El ID del rol debe ser 1 (admin) o 2 (usuario)')
 ];
 
+export const createPublicacionValidators = [
+    body('titulo')
+    .trim()
+    .notEmpty()
+    .isLength({ min: 5 }).withMessage('El título debe tener al menos 5 caracteres.')
+    .withMessage('El título es obligatorio'),
+
+    body('descripcion')
+    .optional()
+    .isString().withMessage('La descripción debe ser texto'),
+
+    body('fechaCreacion')
+    .isISO8601().withMessage('La fecha de creación debe estar en formato ISO 8601 (YYYY-MM-DD)')
+    .toDate()
+    .withMessage('La fecha de creación no es válida')
+
+];
 
 
