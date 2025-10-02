@@ -1,11 +1,11 @@
 import {Router} from 'express';
-import {createComentarioValidators, updateComentarioValidators, runValidations} from '../middlewares/validators.js';
+import {createPublicacionValidators, runValidations} from '../middlewares/validators.js';
 import * as publicacionesController from '../controllers/publicacionesControllers.js';
 
 const router = Router();
 router.get('/', publicacionesController.getObtenerTodasLasPublicaciones);
-router.post('/', runValidations(createComentarioValidators), comentarioController.postCrearComentario);
-router.put('/:id', runValidations(updateComentarioValidators), comentarioController.putActualizarComentario);
+router.post('/', runValidations(createPublicacionValidators), publicacionesController.postCrearPublicacion);
+router.put('/:publicacionId', publicacionesController.putActualizarPublicacion);
 router.delete('/:publicacionId', publicacionesController.deleteEliminarPublicacion);
 
 export default router;
