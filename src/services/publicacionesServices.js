@@ -10,10 +10,10 @@ export const getAllPublicaciones = async () => {
     return result.rows;
 };
 
-export const postCrearPublicacion = async (titulo, descripcion, fechaCreacion) => {
+export const postCrearPublicacion = async ( usuarioId, titulo, descripcion, fechaCreacion) => {
     try{
-        const query = `INSERT INTO publicaciones (titulo, descripcion, fechaCreacion) VALUES ($1, $2, $3) RETURNING *;`
-        const result = await pool.query(query, [titulo, descripcion, fechaCreacion]);
+        const query = `INSERT INTO publicaciones (usuarioId, titulo, descripcion, fechaCreacion) VALUES ($1, $2, $3, $4) RETURNING *;`
+        const result = await pool.query(query, [usuarioId, titulo, descripcion, fechaCreacion]);
         return result.rows[0];
     }catch(err){
         throw err;
@@ -28,18 +28,33 @@ export const eliminarPublicacion = async (publicacionId) => {
         throw error;
     }
     const result = await pool.query(`DELETE FROM publicaciones WHERE publicacionId=$1`, [publicacionId]);
-    return {message: 'Usuario eliminado exitosamente', publicacion: publicacionAEliminar.rows[0]};
+    return {message: 'Publicación eliminada exitosamente', publicacion: publicacionAEliminar.rows[0]};
 };
 
-export const actualizarPublicacion = async (publicacion) =>{
-     const query = `UPDATE publicaciones SET titulo=$1, descripcion=$2, fechaCreacion=$3  WHERE publicacionId=$4 RETURNING *;`
+export const actualizarPublicacion = async (publicacionId, updates) => {
+    const { titulo, descripcion, fechaCreacion } = updates;
 
-    try{
-        const result = await pool.query(query, publicacion);
+    const query = `
+        UPDATE publicaciones 
+        SET 
+            titulo = COALESCE($1, titulo),
+            descripcion = COALESCE($2, descripcion),
+            fechaCreacion = COALESCE($3, fechaCreacion)
+        WHERE publicacionId = $4
+        RETURNING *;
+    `;
+    
+    const params = [titulo, descripcion, fechaCreacion, publicacionId];
+    
+    try {
+        const result = await pool.query(query, params);
 
-        if(result.rowCount === 0) return result.status(404).json({message: 'Publicación no encontrada'});
+        if(result.rowCount === 0) {
+
+            throw new Error('Publicación no encontrada para actualizar');
+        }
         return result.rows[0];
-    }catch(err){
+    } catch(err) {
         throw err;
     }
 };

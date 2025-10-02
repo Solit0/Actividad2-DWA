@@ -11,19 +11,26 @@ export const getObtenerTodasLasPublicaciones = async (req,res,next) => {
 
 export const postCrearPublicacion = async (req,res,next) => {
     try{
-        const{titulo, descripcion, fechaCreacion} = req.body;
-        const newPublicacion = await publicacionService.postCrearPublicacion(titulo, descripcion, fechaCreacion);
+        const{usuarioId, titulo, descripcion, fechaCreacion} = req.body;
+        const newPublicacion = await publicacionService.postCrearPublicacion(usuarioId, titulo, descripcion, fechaCreacion);
         res.status(201).json(newPublicacion);
     }catch(err){
         return next(err);
     }
 };
 
-export const putActualizarPublicacion = async (req,res,next) => {
-    try{
-        const result = await publicacionService.actualizarPublicacion();
-        res.json(result);
-    }catch(err){
+export const putActualizarPublicacion = async (req, res, next) => {
+    try {
+        const { publicacionId } = req.params;
+        const updates = req.body;
+
+        const publicacionActualizada = await publicacionService.actualizarPublicacion(publicacionId, updates);
+        
+        res.json(publicacionActualizada);
+    } catch (err) {
+        if (err.message.includes("no encontrada")) {
+            return res.status(404).json({ message: err.message });
+        }
         return next(err);
     }
 };

@@ -8,7 +8,7 @@ export const getAllUsers = async () => {
 
 
 export const getUserByApellido = async (apellido) => {
-    const { buscar } = `%${apellido}%`;
+    const buscar = `%${apellido}%`;
     const result = await pool.query('SELECT * FROM usuarios WHERE apellido LIKE $1', [buscar]);
     return result.rows;
 };
@@ -20,48 +20,78 @@ export const getBuscarNombre = async (nombre) => {
 };
 
 export const getUserByRol = async (rol) => {
-    const {buscar} = `%${rol}%`;
     const result  = await pool.query(`SELECT u.usuarioId, u.nombreUsuario, u.nombre, u.apellido, r.rol
             FROM usuarios u
             JOIN roles r ON u.rolId = r.rolId
-            WHERE r.rol = $1`, [buscar]);
+            WHERE r.rol = $1`, [rol]);
     return result.rows;
 };
 
-export const postCrearUsuario = async (nombreUsuario, clave, nombre, apellido) => {
+export const postCrearUsuario = async (rolId, nombreUsuario, clave, nombre, apellido) => {
     const SALT_ROUNDS = 10;
     const salt = bcrypt.genSaltSync(SALT_ROUNDS);
     const claveHashed = bcrypt.hashSync(clave, salt);
     try{
-        const query = `INSERT INTO usuarios (nombreUsuario, clave, nombre, apellido) VALUES ($1, $2, $3, $4) RETURNING *;`
+        const query = `INSERT INTO usuarios (rolId, nombreUsuario, clave, nombre, apellido) VALUES ($1, $2, $3, $4, $5) RETURNING *;`
 
-        const result = await pool.query(query, [nombreUsuario,claveHashed, nombre, apellido]);
+        const result = await pool.query(query, [rolId, nombreUsuario,claveHashed, nombre, apellido]);
         return result.rows[0];
     }catch(err){
         throw err;
     }
 }
 
-export const actualizarUsuario = async (usuario) =>{
-    const query = `UPDATE usuarios SET nombreUsuario=$1, clave=$2, nombre=$3, apellido=$4  WHERE id_usuario=$5 RETURNING *;`
 
-    try{
-        const result = await pool.query(query, usuario);
+export const actualizarUsuario = async (usuarioId, updates) => {
+    const allowedKeys = ['nombreUsuario', 'clave', 'nombre', 'apellido'];
+    const fields = [];
+    const params = [];
+    let paramIndex = 1;
 
-        if(result.rowCount === 0) return result.status(404).json({message: 'Usuario no encontrado'});
-        return result.rows[0];
-    }catch(err){
-        throw err;
+    for (const key of allowedKeys) {
+        if (updates[key] !== undefined) {
+            let value = updates[key];
+
+            if (key === 'clave') {
+                if (value === null || value === '') {
+                    continue; 
+                }
+                const salt = await bcrypt.genSalt(10);
+                value = await bcrypt.hash(value, salt);
+            }
+
+            fields.push(`${key} = $${paramIndex}`);
+            params.push(value);
+            paramIndex++;
+        }
     }
-}
+    if (fields.length === 0) {
+        throw new Error("No se proporcionaron campos válidos para actualizar.");
+    }
+    params.push(usuarioId);
+    const setClause = fields.join(', '); 
+
+    const query = `
+        UPDATE usuarios
+        SET ${setClause}
+        WHERE usuarioId = $${paramIndex}
+        RETURNING usuarioId, nombreUsuario, nombre, apellido;
+    `;
+    const result = await pool.query(query, params);
+
+    if (result.rowCount === 0) {
+        throw new Error('Usuario no encontrado para actualizar');
+    }
+    return result.rows[0];
+};
 
 export const eliminarUsuario = async (usuarioId) => {
-    const usuarioAEliminar = await pool.query(`SELECT * FROM usuarios WHERE id_usuario=$1`, [usuarioId]);
+    const usuarioAEliminar = await pool.query(`SELECT * FROM usuarios WHERE usuarioId=$1`, [usuarioId]);
     if(usuarioAEliminar.rowCount === 0) {
         const error = new Error('Usuario no encontrado');
         error.statusCode = 404;
         throw error;
     }
-    const result = await pool.query(`DELETE FROM usuarios WHERE id_usuario=$1`, [usuarioId]);
+    const result = await pool.query(`DELETE FROM usuarios WHERE usuarioId=$1`, [usuarioId]);
     return {message: 'Usuario eliminado exitosamente', usuario: usuarioAEliminar.rows[0]};
 }

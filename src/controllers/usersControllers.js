@@ -11,7 +11,8 @@ export const getObtenerTodosLosUsuarios = async (req,res,next) => {
 
 export const getObtenerPorRol = async (req,res,next) => {
     try{
-        const result = await userService.getUserByRol();
+        const {rol} = req.params;
+        const result = await userService.getUserByRol(rol);
         res.json(result);
     }catch(err){
         return next(err);
@@ -19,7 +20,8 @@ export const getObtenerPorRol = async (req,res,next) => {
 };
 export const getBuscarNombre = async (req,res,next) => {
     try{
-        const result = await userService.getBuscarNombre();
+        const {nombre} = req.params;
+        const result = await userService.getBuscarNombre(nombre);
         res.json(result);
     }catch(err){
         return next(err);
@@ -28,7 +30,8 @@ export const getBuscarNombre = async (req,res,next) => {
 
 export const getBuscarApellido = async (req,res,next) => {
     try{
-        const result = await userService.getUserByApellido();
+        const {apellido} = req.params;
+        const result = await userService.getUserByApellido(apellido);
         res.json(result);
     }catch(err){
         return next(err);
@@ -37,8 +40,8 @@ export const getBuscarApellido = async (req,res,next) => {
 
 export const postCrearUsuario = async (req,res,next) => {
     try{
-        const{nombreUsuario, clave, nombre, apellido} = req.body;
-        const newUser = await userService.postCrearUsuario(nombreUsuario, clave, nombre, apellido);
+        const{rolId, nombreUsuario, clave, nombre, apellido} = req.body;
+        const newUser = await userService.postCrearUsuario(rolId, nombreUsuario, clave, nombre, apellido);
         res.status(201).json(newUser);
     }catch(err){
         return next(err);
@@ -46,8 +49,11 @@ export const postCrearUsuario = async (req,res,next) => {
 };
 export const putActualizarUsuario = async (req,res,next) => {
     try{
-        const result = await userService.ActualizarUsuario();
-        res.json(result);
+        const {usuarioId} = req.params; 
+        const datosUsuario = req.body;
+
+        const usuarioActualizado = await userService.actualizarUsuario(usuarioId, datosUsuario);
+        res.json(usuarioActualizado);
     }catch(err){
         return next(err);
     }
