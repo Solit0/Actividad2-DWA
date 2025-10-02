@@ -68,3 +68,12 @@ export const deleteEliminarUsuario = async (req,res,next) => {
         return next(err);
     }
 };
+export const getTopComentadores = async (req, res, next) => {
+    try {
+        const { n } = req.params;
+        const top = await userService.getTopComentadores(parseInt(n));
+        res.json(top);
+    } catch (err) {
+        return next(err);
+    }
+};

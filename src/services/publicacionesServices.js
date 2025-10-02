@@ -35,14 +35,8 @@ export const actualizarPublicacion = async (publicacionId, updates) => {
     const { titulo, descripcion, fechaCreacion } = updates;
 
     const query = `
-        UPDATE publicaciones 
-        SET 
-            titulo = COALESCE($1, titulo),
-            descripcion = COALESCE($2, descripcion),
-            fechaCreacion = COALESCE($3, fechaCreacion)
-        WHERE publicacionId = $4
-        RETURNING *;
-    `;
+        UPDATE publicaciones SET titulo = COALESCE($1, titulo), descripcion = COALESCE($2, descripcion), fechaCreacion = COALESCE($3, fechaCreacion)
+        WHERE publicacionId = $4 RETURNING *;`;
     
     const params = [titulo, descripcion, fechaCreacion, publicacionId];
     

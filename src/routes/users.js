@@ -3,6 +3,7 @@ import * as userController from '../controllers/usersControllers.js';
 import {createUserValidators, runValidations} from '../middlewares/validators.js';
 
 const router = Router();
+router.get('/topcomentarios/:n', userController.getTopComentadores);
 
 router.get('/',userController.getObtenerTodosLosUsuarios);
 router.get('/buscarPorApellido/:apellido', userController.getBuscarApellido);

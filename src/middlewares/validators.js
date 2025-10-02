@@ -63,5 +63,44 @@ export const createPublicacionValidators = [
     .withMessage('La fecha de creación no es válida')
 
 ];
+export const createComentarioValidators = [
+    body('publicacionId')
+        .notEmpty().withMessage('El ID de la publicación es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El ID de la publicación debe ser un número entero positivo'),
 
+    body('usuarioId')
+        .notEmpty().withMessage('El ID del usuario es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El ID del usuario debe ser un número entero positivo'),
 
+    body('comentario')
+        .trim()
+        .notEmpty().withMessage('El comentario es obligatorio')
+        .isLength({ min: 3 }).withMessage('El comentario debe tener al menos 3 caracteres'),
+];
+
+export const updateComentarioValidators = [
+    body('comentario')
+        .trim()
+        .notEmpty().withMessage('El comentario es obligatorio')
+        .isLength({ min: 3 }).withMessage('El comentario debe tener al menos 3 caracteres'),
+];
+
+export const createCalificacionValidators = [
+    body('publicacionId')
+        .notEmpty().withMessage('El ID de la publicación es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El ID de la publicación debe ser un número entero positivo'),
+
+    body('usuarioId')
+        .notEmpty().withMessage('El ID del usuario es obligatorio')
+        .isInt({ gt: 0 }).withMessage('El ID del usuario debe ser un número entero positivo'),
+
+    body('calificacion')
+        .notEmpty().withMessage('La calificación es obligatoria')
+        .isInt({ min: 1, max: 5 }).withMessage('La calificación debe estar entre 1 y 5'),
+];
+
+export const updateCalificacionValidators = [
+    body('calificacion')
+        .notEmpty().withMessage('La calificación es obligatoria')
+        .isInt({ min: 1, max: 5 }).withMessage('La calificación debe estar entre 1 y 5'),
+];

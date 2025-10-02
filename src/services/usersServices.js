@@ -72,11 +72,7 @@ export const actualizarUsuario = async (usuarioId, updates) => {
     const setClause = fields.join(', '); 
 
     const query = `
-        UPDATE usuarios
-        SET ${setClause}
-        WHERE usuarioId = $${paramIndex}
-        RETURNING usuarioId, nombreUsuario, nombre, apellido;
-    `;
+        UPDATE usuarios SET ${setClause} WHERE usuarioId = $${paramIndex} RETURNING usuarioId, nombreUsuario, nombre, apellido;`;
     const result = await pool.query(query, params);
 
     if (result.rowCount === 0) {
@@ -95,3 +91,10 @@ export const eliminarUsuario = async (usuarioId) => {
     const result = await pool.query(`DELETE FROM usuarios WHERE usuarioId=$1`, [usuarioId]);
     return {message: 'Usuario eliminado exitosamente', usuario: usuarioAEliminar.rows[0]};
 }
+export const getTopComentadores = async (n) => {
+    const result = await pool.query(
+        `SELECT u.usuarioId, u.nombreUsuario, u.nombre, u.apellido, COUNT(c.comentarioId) AS totalComentarios FROM usuarios u
+        JOIN comentarios c ON u.usuarioId = c.usuarioId GROUP BY u.usuarioId ORDER BY totalComentarios DESC LIMIT $1`, [n]
+    );
+    return result.rows;
+};
