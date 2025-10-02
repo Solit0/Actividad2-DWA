@@ -1,4 +1,5 @@
 import {Router} from 'express';
+import {createPublicacionValidators, runValidations} from '../middlewares/validators.js';
 import * as publicacionesController from '../controllers/publicacionesControllers.js';
 
 const router = Router();
